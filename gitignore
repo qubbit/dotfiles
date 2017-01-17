@@ -1,0 +1,7 @@
+*~
+.DS_Store
+.editorconfig
+.tags
+.tags_sorted_by_file
+tags
+*.swp
