@@ -1,7 +1,54 @@
-# Path to your oh-my-zsh installation.
-export ZSH=~/.oh-my-zsh
+# Helper functions
+os() {
+  uname
+}
 
-# colorized man pages
+command_exists() {
+  command -V "$@" > /dev/null 2>&1
+}
+
+# Path configuration
+export PATH="~/.dotfiles/bin:$PATH"
+export PATH="~/.dotfiles/fzf/bin:$PATH"
+export PATH=/usr/local/bin:$PATH
+export PATH=$PATH:/usr/local/opt/go/libexec/bin
+export PATH=$PATH:~/.cargo/bin
+export PATH="$HOME/.rbenv/bin:$PATH"
+export PATH="$PATH:~/go/bin"
+export PATH="/usr/local/opt/imagemagick@6/bin:$PATH"
+export PATH="$HOME/.rbenv/bin:$PATH"
+export PATH="$HOME/.yarn/bin:$HOME/.config/yarn/global/node_modules/.bin:$PATH"
+[ -f "$(command_exists yarn)" ] && export PATH="$PATH:$(yarn global bin)"
+
+ANTIGEN_PATH=~/.dotfiles/antigen/antigen.zsh
+
+if [ -f $ANTIGEN_PATH ]; then
+  source $ANTIGEN_PATH
+
+  antigen use oh-my-zsh
+
+  antigen bundle rails
+  antigen bundle ruby
+  antigen bundle bundler
+  antigen bundle cp
+  antigen bundle history
+  antigen bundle osx
+  antigen bundle postgres
+  antigen bundle git
+  antigen bundle command-not-found
+
+  antigen bundle zsh-users/zsh-completions
+  antigen bundle zsh-users/zsh-syntax-highlighting
+  antigen bundle zsh-users/zsh-history-substring-search
+
+  antigen theme geometry-zsh/geometry
+  # antigen theme avit
+
+  antigen apply
+fi
+
+
+# Colorized man pages
 # http://boredzo.org/blog/archives/2016-08-15/colorized-man-pages-understood-and-customized
 man() {
     env \
@@ -15,89 +62,102 @@ man() {
             man "$@"
 }
 
-VAGRANT_DIR="$HOME/vagrant"
-
-if [[ `uname` == 'Darwin' ]]; then
-  export HOST=nymeria
-  alias cdc="cd $VAGRANT_DIR/code && cd"
+if [ -x nvim ]; then
+  alias v=nvim
+  alias vi=nvim
 else
-  export HOST=greywind
-  alias cdc="cd /vagrant/code && cd"
-  xmodmap ~/.speedswapper
+  alias v=vim
+  alias vi=vim
 fi
 
-# Set name of the theme to load.
-# Look in ~/.oh-my-zsh/themes/
-# Optionally, if you set this to "random", it'll load a random theme each
-# time that oh-my-zsh is loaded.
-ZSH_THEME="norm"
+WORKSPACE_DIR="$HOME/workspace"
 
-plugins=(git rails ruby)
-
-# User configuration
-
-# export PATH="/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/opt/X11/bin"
-# export MANPATH="/usr/local/man:$MANPATH"
-export PATH=$PATH:/usr/local/opt/go/libexec/bin
-export PATH=/Users/gadhikari/Downloads/activator-1.3.11-minimal/bin:$PATH
-
-source $ZSH/oh-my-zsh.sh
-export LANG=en_US.UTF-8
-export EDITOR='vim'
-export ARCHFLAGS="-arch x86_64"
-
-# need these lines to prevent: command get_passphrase failed: Inappropriate ioctl for device
-GPG_TTY=$(tty)
-export GPG_TTY
-
-# ssh
-# export SSH_KEY_PATH="~/.ssh/dsa_id"
-
-ssh-add -L &> /dev/null
-if [ $? -eq 1 ]; then
-  ssh-add
-fi
-
-export PATH="$HOME/.rbenv/bin:$PATH"
-rbenv commands &>/dev/null && eval "$(rbenv init -)"
-
-function vssh(){
-  pushd > /dev/null 2>&1
-  cd $VAGRANT_DIR
-  running=false
-  if [[ `vagrant status | grep -o running` == "running" ]]; then
-    running=true
-  fi
-
-  if $running; then; vagrant ssh; else vagrant up && vagrant ssh; fi
-  popd
+cdc() {
+  cd $WORKSPACE_DIR/$1
 }
 
-alias v="vim"
-alias vi="vim"
+if [[ $(os) == 'Darwin' ]]; then
+  export HOST=nymeria
+else
+  export HOST=greywind
+  #if test has_app('xmodmap'); then xmodmap ~/.speedswapper; fi
+fi
+
+
+export LANG=en_US.UTF-8
+export EDITOR='vim'
+export VISUAL='vim'
+export ARCHFLAGS="-arch x86_64"
+
+rbenv commands &>/dev/null && eval "$(rbenv init -)"
+
 alias g="git"
-alias ag="ag --ignore=vendor"
+alias tree=tree -I "node_modules|bower_components"
+alias ag="ag --ignore=vendor --ignore=node_modules"
 alias agr="ag --ruby"
 alias tmlink="tmate show-messages | tail -1 | cut -d' ' -f9- | pbcopy"
 alias myip="dig TXT +short o-o.myaddr.l.google.com @ns1.google.com | sed 's/\"//g'"
+alias bake="bundle exec rake"
+alias hgrep="history | grep"
+alias qfind="find . -name"
 
-if [[ ! $TERM =~ screen ]]; then
-  # exec tmux
-fi
+replace(){
+  find $1 -name $2 | xargs sed -i "" "s/$3/$4/g"
+}
 
+export FZF_DEFAULT_COMMAND='rg --files'
+export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
+
+alias pfzf="fzf --preview '[[ $(file --mime {}) =~ binary ]] &&
+                 echo {} is a binary file ||
+                 (highlight -O ansi -l {} ||
+                  coderay {} ||
+                  rougify {} ||
+                  cat {}) 2> /dev/null | head -500'"
+
+# Find files and delete them
+fdel() {
+  find . -name $1 -delete
+}
+
+alias fixssh='eval $(tmux showenv -s SSH_AUTH_SOCK)'
+
+HOSTNAME=$(hostname)
+
+_ssh_auth_save() {
+  ln -sf "$SSH_AUTH_SOCK" "$HOME/.ssh/ssh-auth-sock.$HOSTNAME"
+}
+alias tmux='_ssh_auth_save ; export HOSTNAME=$(hostname) ; tmux'
 alias ber="bundle exec rspec"
 alias be="bundle exec"
+alias bcap="bundle exec capistrano"
 alias sqshsql="sqsh -U 'innova\\gadhikari' -D CMM_Repl -S sydney.innova.local -w 200"
 alias rm="rm -i"
 
 # OS specific settings
-if [[ `uname` == 'Darwin' ]]; then
-  alias stfu="osascript -e 'set volume output muted true'"
+if [[ $(os) == 'Darwin' ]]; then
+  alias kq="osascript -e 'set volume output muted true'"
   alias pumpitup="osascript -e 'set volume 7'"
   alias hax="growlnotify -a 'Activity Monitor' 'System error' -m 'WTF R U DOIN'"
 fi
 
-# really cool aliase and functions
+# some cool aliases and functions
+
+# find and replace in files while creating backup
+agfr() {
+  ag -0 -l $1 | xargs -0 perl -pi.bak -e "s/$1/$2/g"
+}
+
+# shuts the fuck up noisy commands with output on stderr redir to /dev/null
+# thanks zenspider
+stfu () {
+  eval $* 2> /dev/null
+}
+
+STFU () {
+  eval $* &> /dev/null
+}
+
 
 alias psmem="ps -eo size,pid,user,command --sort -size | awk '{ hr=$1/1024 ; printf("%13.2f Mb ",hr) } { for ( x=4 ; x<=NF ; x++ ) { printf("%s ",$x) } print "" }'"
 
@@ -110,11 +170,26 @@ function duh() {
 }
 
 function whatport() {
-  netstat -ln | grep $1 | awk '{print $NF}'
+  if [[ $(os) == 'Darwin' ]]; then
+    netstat -ln | grep $1 | awk '{print $NF}'
+  else
+    netstat -tulpn | grep :$1
+  fi
 }
 
+
+function wwp() {
+  lsof -n -i4TCP:$1
+}
+
+# find and kill programs listening on the specified TCP port
+function kp() {
+  lsof -n -t -i4TCP:$1 | xargs kill -15
+}
+
+
 function ssht() {
-  /usr/bin/ssh -t "$@" "tmux attach -t 0 || tmux new";
+  ssh -t "$@" "tmux attach -t 0 || tmux new";
 }
 
 function mcd() {
@@ -122,7 +197,45 @@ function mcd() {
 }
 
 # customized norm theme
-PROMPT='%{$fg[yellow]%}λ %n% @%m %{$fg[green]%}%c %{$fg[yellow]%}$(git_prompt_info)%{$reset_color%}'$'\n> '
+# PROMPT='%{$fg[yellow]%}%n% @%m %{$fg[green]%}%c %{$fg[yellow]%}$(git_prompt_info)%{$reset_color%}'$'\nλ '
 
 ZSH_THEME_GIT_PROMPT_PREFIX="%{$fg[colour12]%}git %{$fg[red]%}"
 ZSH_THEME_GIT_PROMPT_SUFFIX="%{$fg[yellow]%}%{$reset_color%}"
+
+eval `ssh-agent` > /dev/null
+[ -f ~/.asdf/asdf.sh ] && . ~/.asdf/asdf.sh
+
+[ -f /usr/local/etc/profile.d/autojump.sh ] && . /usr/local/etc/profile.d/autojump.sh
+
+command_exists rbenv && eval "$(rbenv init -)"
+
+export NODE_PATH=/usr/lib/node_modules
+
+export ERL_AFLAGS="-kernel shell_history enabled"
+export LOCAL_DEVELOPMENT="true"
+
+[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
+
+[ -f "$(command_exists compdef)" ] && compdef '_path_files -/ -W $WORKSPACE_DIR' cdc
+
+alias dk=docker kill
+
+# Unfuck docker fuckiness
+removecontainers() {
+    docker stop $(docker ps -aq)
+    docker rm $(docker ps -aq)
+}
+
+armaggedon() {
+    removecontainers
+    docker network prune -f
+    docker rmi -f $(docker images --filter dangling=true -qa)
+    docker volume rm $(docker volume ls --filter dangling=true -q)
+    docker rmi -f $(docker images -qa)
+}
+
+export NVM_DIR="$HOME/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
+[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
+
+[ -f ~/.dotfiles/amazon.zshrc ] && source ~/.dotfiles/amazon.zshrc

@@ -1,4 +1,3 @@
-# This is Git's per-user configuration file.
 [alias]
   # one-line log
   l = log --pretty=format:"%C(yellow)%h\\ %ad%Cred%d\\ %Creset%s%Cblue\\ [%cn]" --decorate --date=short
@@ -11,10 +10,19 @@
   cm = commit -m
   cam = commit -a -m
   m = commit --amend --verbose
+  cfix = commit --amend --no-edit
+
+  # list of files changed between mainline and this branch
+  dmn = diff mainline --name-only
 
   rao = remote add origin
+  pom = pull origin master
   ac = !git add . && git commit -am
   pushitgood = push -u origin --all
+
+  # finds the ref where master and this branch diverged and attempts
+  # to rebase from that point on
+  sb = !git rebase -i $(git merge-base HEAD master)
 
   d = diff
   ds = diff --stat
@@ -23,19 +31,27 @@
   s = status -s
   co = checkout
   cob = checkout -b
+
   # list branches sorted by last modified
   b = "!git for-each-ref --sort='-authordate' --format='%(authordate)%09%(objectname:short)%09%(refname)' refs/heads | sed -e 's-refs/heads/--'"
 
   # list aliases
   la = "!git config -l | grep alias | cut -c 7-"
 
+  bstats = "!git log --author=$USER --shortstat $BRANCH | \
+  awk '/^ [0-9]/ { f += $1; i += $4; d += $6 } \
+  END { printf(\"%d files changed, %d insertions(+), %d deletions(-)\", f, i, d) }'"
+
+path
+
 [user]
-  name = gadhikari
-  email = gadhikari@covermymeds.com
-  #signingkey = 6F7FC6D5E989501D
+  name = Gopal Adhikari
+  email = gopadhi@amazon.com
+
+[includeIf "gitdir:~/pg/"]
+  path = ~/.dotfiles/gitconfig-play
 
 [core]
-  #autocrlf = input
   excludesfile = ~/.gitignore
 
 [color]
@@ -43,11 +59,12 @@
 
 [push]
   default = current
-[commit]
-  #gpgsign = true
+
 [pull]
   rebase = true
+
 [gpg]
   program = gpg2
+
 [branch]
   autosetupmerge = always

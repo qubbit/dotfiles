@@ -1,0 +1,10 @@
+#!/bin/bash
+
+docker stop $(docker ps -a -q)
+docker rm $(docker ps -a -q)
+docker rmi $(docker images -q)
+
+if [ $(docker images -q | wc -l) -gt 0 ]; then
+    echo Force removing remaining images.
+    docker rmi --force $(docker images -q)
+fi

@@ -1,48 +1,43 @@
-dotfiles
-========
+dotfiles 💻
+===========
 
-My vim, tmux, zsh settings
+This repo contains my development machine setup scripts.
 
-Of course, the setup here is tailored as per my liking. If you disgree, you can fork the repo and
-make changes to the script as you see fit.
+Following platforms are supported:
 
+* macOS
+* Ubuntu
+* Debian
+* CentOS
+* RHEL 6 and 7
+
+The setup here is tailored as per my liking. You can fork the repo and make changes to the script as you see fit.
+
+
+What does it contain?
+---------------------
+
+The `dev_setup.sh` script installs vim, git, tmux, curl and zsh (apt-get upgrades them if they are already installed). Configuration files for vim, tmux, git and zsh are symlinked (using `dotfiles_setup.sh`) from your $HOME and the vim plugins are installed via vim-plug
+
+You can just run `dotfiles_setup.sh` if you just want to symlink the dot files.
 
 Installation
 ------------
-
-1. Install `vim-plug` by following the instructions [here](https://github.com/junegunn/vim-plug)
-
-2. Install `oh-my-zsh` by following the instructions [here](https://github.com/robbyrussell/oh-my-zsh)
-
-3. Install `tmux, git and zsh` if you don't have them installed already
-
-#### Ubuntu
-
-<pre>
-sudo apt-get update && sudo apt-get install tmux git zsh
-</pre>
-
-#### Mac OS X (with brew)
-
-<pre>
-brew update && brew install tmux git zsh
-</pre>
 
 <pre>
 git clone https://github.com/qubbit/dotfiles .dotfiles
 
 cd .dotfiles
 
-chmod +x ./setup.sh
-
-./setup.sh
+./dev_setup.sh
 </pre>
 
-
-### Awesome *nix utilities
-1. Silver searcher (a.k.a ag)
+Tools of the trade
+------------------
+1. ag (silver searcher)
 2. git
 3. curl
 4. zsh
 5. tmux
 6. vim
+7. fzf

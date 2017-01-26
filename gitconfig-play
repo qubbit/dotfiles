@@ -1,0 +1,6 @@
+[alias]
+  # list of files changed between master and this branch
+  dmn = diff master --name-only
+[user]
+  name = qubbit
+  email = gopala@email.arizona.edu

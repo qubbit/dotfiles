@@ -1,0 +1,27 @@
+#!/bin/bash
+
+if (ps | grep '[t]mux' > /dev/null ); then
+    TM=tmux
+elif (ps | grep '[t]mate' > /dev/null); then
+    TM=tmate
+else
+    echo Must run under tmux or tmate
+    exit
+fi
+
+PANE_BASE=$($TM display -p "#{pane_index}")
+
+num_windows=$($TM display -p "#{session_windows}")
+for w in $(seq $num_windows 2); do
+    num_panes=$($TM display -p "#{window_panes}")
+    for p in $(seq $PANE_BASE $(( $PANE_BASE + $num_panes )) ); do
+        $TM send-keys -t main:$w.$p C-C C-C
+    done
+done
+
+# Cleanup graphite instance
+$TM select-window :support
+$TM select-pane :support.1
+script/cleanup
+
+$TM kill-session

@@ -1,0 +1,303 @@
+#!/bin/bash
+#
+# Under tmux/tmate, set up a series of windows containing the different pipeline
+#  apps needed to run testing.
+#
+# Set the environment variable PIPELINE_BASE to point to the directory containing
+# all of the pipeline repo working directories.
+#
+
+# Configuration
+BASEDIR=${PIPELINE_BASE:-~/sandbox/core_tech}
+
+if (ps | grep '[t]mux' > /dev/null ); then
+    TM=tmux
+elif (ps | grep '[t]mate' > /dev/null); then
+    TM=tmate
+else
+    echo Must run under tmux or tmate
+    exit
+fi
+
+PANE_BASE=$($TM display -p "#{pane_index}")
+
+# Declare arrays for the repos in each window
+declare -a core_repos=(orch intake httpdelivererplugin)
+declare -a support_repos=(examplepluginapp dockerstatsd fake-plan-payer)
+declare -a cb_repos=(gatherformularyplugin cbaddresserplugin cbtransformerplugin)
+declare -a ncpdp_repos=(validatencpdpanswerplugin exampleeventlistener)
+declare -a repos=(${core_repos[@]} ${support_repos[@]} ${cb_repos[@]} ${ncpdp_repos[@]} pipeline_verifier)
+
+cd $BASEDIR
+
+function ensure_active_repos() {
+    declare -a fails
+    for d in "$@"; do
+        if [ ! -d $d ]; then fails+=($d); fi
+    done
+    if [ ! -z "${fails[*]}" ]; then
+        echo "The following repos are not checked out into '$BASEDIR':"
+        echo "  ${fails[*]}"
+        echo "exiting."
+        exit
+    fi
+}
+
+#
+# Check the specified container for a process matching the given regular expression
+# container_has_process {container} {regex}
+function container_has_process() {
+    if [ $# -lt 2 ]; then
+        echo Missing docker container and process expression
+        exit
+    fi
+    container="$1"
+    regex="$2"
+    docker top "$container" 2> /dev/null | grep "$regex" > /dev/null
+}
+
+#
+# Wait until the specified container is up and contains a process matching the given
+#   regular expression
+# wait_for_container_to_have_process {container} {regex}
+function wait_for_container_to_have_process() {
+    if [ $# -lt 2 ]; then
+        echo Missing docker container and process expression
+        exit
+    fi
+    container="$1"
+    regex="$2"
+    until (container_has_process "$container" "$regex"); do
+        sleep 1
+    done
+}
+
+#
+# Wait until the specified container is either down or no longer contains a process
+#   matching the given regular expression
+# wait_for_container_to_have_process {container} {regex}
+function wait_for_container_to_not_have_process() {
+    if [ $# -lt 2 ]; then
+        echo Missing docker container and process expression
+        exit
+    fi
+    container="$1"
+    regex="$2"
+    while (container_has_process "$container" "$regex"); do
+        sleep 1
+    done
+}
+
+#
+# Wait until orch is fully up and running
+function wait_for_orch_up() {
+    wait_for_container_to_have_process orch_orch1_run_1 'beam.*orch'
+    wait_for_container_to_have_process orch-pg           orch
+    wait_for_container_to_have_process orch-kafka        kafka
+    wait_for_container_to_have_process orch-zookeeper    zookeeper
+}
+
+#
+# Wait until orch is down
+function wait_for_orch_down() {
+    wait_for_container_to_not_have_process orch_orch1_run_1 'beam.*orch'
+    wait_for_container_to_not_have_process orch-pg           orch
+    wait_for_container_to_not_have_process orch-kafka        kafka
+    wait_for_container_to_not_have_process orch-zookeeper    zookeeper
+}
+
+#
+# Create a new window with panes for each of the supplied subdirectories of $BASEDIR
+# make_window {window_name} {dirs ...}
+function make_window() {
+    if [ $# -lt 2 ]; then
+        echo Must have a name and at least one app specified
+        exit
+    fi
+    name="$1"
+    first="$2"
+    shift 2
+    $TM new-window -c "$BASEDIR/$first" -n "$name"
+    for d in "$@"; do
+        $TM split-window -c "$BASEDIR/$d"
+    done
+    $TM select-layout -t ":$name" even-vertical
+    $TM select-pane -t ":$name.$PANE_BASE"
+}
+
+function pane_command() {
+    if [ $# -lt 2 ]; then
+        echo Must have a pane and command string specified
+        exit
+    fi
+    pane="$1"
+    shift
+    $TM send-keys -t "$pane" "$@" Enter
+}
+
+function pane_nums() {
+    if [ $# -lt 1 ]; then
+        echo Must have a window specified
+        exit
+    fi
+    window="$1"
+    shift
+    num_panes=$($TM display -p -t "$window" '#{window_panes}')
+    last_pane=$(( $PANE_BASE + $num_panes - 1 ))
+    seq $PANE_BASE $last_pane
+}
+
+function all_panes_command() {
+    if [ $# -lt 2 ]; then
+        echo Must have a window and command string specified
+        exit
+    fi
+    window="$1"
+    shift
+    for i in $(pane_nums "$window") ; do
+        pane_command "$window.$i" "$@"
+    done
+}
+
+function pane_has_text() {
+    if [ $# -lt 2 ]; then
+        false
+    else
+        pane="$1"
+        $TM capture-pane -p -t $pane | grep '[^ ]' | tail -n 2 | grep "$2" > /dev/null
+    fi
+}
+
+function not_sudo_prompt() {
+    if [ $# -lt 1 ]; then
+        echo Must have a pane specified
+        exit
+    fi
+    pane="$1"
+    while (pane_has_text "$pane" 'Enter passphrase for'); do
+        sleep 1
+    done
+}
+
+function pane_wait_for() {
+    if [ $# -lt 2 ]; then
+        echo Must have a pane specified
+        exit
+    fi
+    pane="$1"
+    until (pane_has_text "$pane" "$2"); do
+        sleep 1
+    done
+}
+
+function pane_wait_for2() {
+    if [ $# -lt 2 ]; then
+        echo Must have a pane specified
+        exit
+    fi
+    pane="$1"
+    until (pane_has_text "$pane" "$2" || pane_has_text "$pane" "$3"); do
+        sleep 1
+    done
+}
+
+function release_sudo() {
+    if [ $# -lt 1 ]; then
+        echo Must have a pane specified
+        exit
+    fi
+    pane="$1"
+
+    if [ $# -lt 2 ]; then
+        pane_wait_for "$pane" 'Enter passphrase for'
+        $TM send-keys -t "$pane" Enter
+    else
+        pane_wait_for2 "$pane" 'Enter passphrase for' "$2"
+        if (pane_has_text "$pane" 'Enter passphrase for'); then
+            $TM send-keys -t "$pane" Enter
+        fi
+    fi
+}
+
+#function release_sudo() {
+#    if [ $# -lt 1 ]; then
+#        echo Must have a pane specified
+#        exit
+#    fi
+#    pane=$1
+#
+#    pane_wait_for $pane 'Enter passphrase for'
+#    $TM send-keys -t $pane Enter
+#}
+
+
+# ----- Begin actual work ------
+
+# Make sure all the repos are available
+ensure_active_repos ${repos[@]}
+
+# Setup all windows and panes
+make_window core     "${core_repos[@]}"
+make_window support  "${support_repos[@]}"
+make_window cb       "${cb_repos[@]}"
+make_window ncpdp    "${ncpdp_repos[@]}"
+make_window verifier pipeline_verifier
+
+$TM select-window -t :core
+
+# Fix layouts, as needed
+window_width=$($TM display -p -t :core '#{window_width}')
+$TM setw main-pane-width $(( $window_width / 2 ))
+$TM select-layout -t :core main-vertical
+$TM select-layout -t :cb tiled
+
+## Send commands to appropriate panes
+orch_pane=:core.$PANE_BASE
+intake_pane=:core.$(( $PANE_BASE + 1 ))
+deliver_pane=:core.$(( $PANE_BASE + 2 ))
+
+example_pane=:support.$(( $PANE_BASE ))
+statsd_pane=:support.$(( $PANE_BASE + 1 ))
+fpp_pane=:support.$(( $PANE_BASE + 2 ))
+
+# Core pipeine
+pane_command $statsd_pane  "script/cleanup"
+pane_command $orch_pane    "script/cleanup"
+wait_for_orch_down
+pane_command $orch_pane    "script/setup ; script/run"
+release_sudo $orch_pane
+not_sudo_prompt $orch_pane
+release_sudo $orch_pane
+wait_for_orch_up
+
+pane_command $intake_pane  "script/cleanup ; script/setup ; script/server"
+pane_command $deliver_pane  "script/cleanup ; script/setup ; script/server"
+
+release_sudo $intake_pane 'ERROR:'
+release_sudo $deliver_pane
+
+# Test support tools
+pane_command $example_pane "script/cleanup ; script/setup ; script/run"
+pane_command $statsd_pane  "script/run"
+pane_command $fpp_pane     "script/cleanup ; script/docker_setup ; script/run"
+
+release_sudo $example_pane
+not_sudo_prompt $example_pane
+release_sudo $example_pane
+
+# CB plugins
+all_panes_command :cb "script/cleanup ; script/setup; script/server"
+for i in $(pane_nums :cb); do
+    release_sudo :cb.$i
+done
+$TM setw -t :cb synchronize-panes on
+
+# NCPDP plugins
+all_panes_command :ncpdp "script/cleanup ; script/setup; script/run"
+for i in $(pane_nums :ncpdp); do
+    release_sudo :ncpdp.$i
+done
+
+# Pipeline verifier
+pane_command :verifier.$PANE_BASE "script/cleanup ; script/setup"
+release_sudo :verifier.$PANE_BASE

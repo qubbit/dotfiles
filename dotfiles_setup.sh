@@ -1,22 +1,10 @@
 #!/usr/bin/env bash
-
-echo "                                                       ";
-echo "                     _|        _|        _|    _|      ";
-echo "   _|_|_|  _|    _|  _|_|_|    _|_|_|        _|_|_|_|  ";
-echo " _|    _|  _|    _|  _|    _|  _|    _|  _|    _|      ";
-echo " _|    _|  _|    _|  _|    _|  _|    _|  _|    _|      ";
-echo "   _|_|_|    _|_|_|  _|_|_|    _|_|_|    _|      _|_|  ";
-echo "       _|                                              ";
-echo "       _|                                              ";
-echo "                                                       ";
-
-# Add your ASCII art from: http://patorjk.com/software/taag/#p=display&c=echo&f=Block&t=qubbit
+. ./common.sh
 
 DRYRUN=false
 NOISY=false
 
 for arg in "$@"; do
-
   larg="$(tr [A-Z] [a-z] <<< "$arg")"
 
   if [ "$larg" == "dryrun" ]; then
@@ -26,7 +14,6 @@ for arg in "$@"; do
   if [ "$larg" == "noisy" ]; then
     NOISY=true
   fi
-
 done
 
 if [ "$NOISY" = true ]; then
@@ -35,7 +22,7 @@ else
   set -e
 fi
 
-FILELIST=(vimrc
+FILE_LIST=(vimrc
          zshrc
          gitconfig
          gitignore
@@ -46,9 +33,19 @@ FILELIST=(vimrc
 
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
-for file in ${FILELIST[@]}; do
+if [ "$DRYRUN" = false ]; then
+  __info__ "Setting up vim"
+  vim_setup
+  __info__ "Setting up zsh"
+  zsh_setup
+else
+  __info__ "dry run: vim setup"
+  __info__ "dry run: zsh setup"
+fi
 
-  printf "Processing %s...\n" $file
+for file in ${FILE_LIST[@]}; do
+
+  __info__ "Processing $file"
 
   home_file="$HOME/.$file"
   repo_file="$DIR/$file"
@@ -58,7 +55,7 @@ for file in ${FILELIST[@]}; do
     has_symlink=false
       if [ -L $home_file ]; then
         has_symlink=true
-        printf "Unlinking %s\n" $home_file
+        __info__ "Unlinking $home_file\n"
         unlink_cmd="unlink $home_file"
         if [ "$DRYRUN" = false ]; then
           eval $unlink_cmd
@@ -70,17 +67,17 @@ for file in ${FILELIST[@]}; do
       move_cmd="mv $home_file $backup"
       symlink_cmd="ln -s $repo_file $home_file"
 
-      printf "Creating symlink\n"
+      __info__ "Creating symlink"
 
       if [ "$DRYRUN" = false ]; then
-        ! $has_symlink && printf "Backing up %s to %s\n" $home_file $backup && eval $move_cmd
+        ! $has_symlink && __info__ "Backing up $home_file to $backup" && eval $move_cmd
         eval $symlink_cmd
       else
-        ! $has_symlink && printf "Backing up %s to %s\n" $home_file $backup && echo $move_cmd
+        ! $has_symlink && __info__ "Backing up $home_file to $backup" && echo $move_cmd
         echo $symlink_cmd
       fi
   else
-    printf "No previous config detected for %s, creating symlink\n" $file
+    __info__ "No previous config detected for $file, creating symlink"
     cmd="ln -s $repo_file $home_file"
     if [ "$DRYRUN" = false ]; then
       eval $cmd
@@ -91,5 +88,17 @@ for file in ${FILELIST[@]}; do
   echo ""
   has_symlink=false
 done
+
+__info__ "Configuring neovim"
+
+NVIM_DIR="$HOME/.config/nvim"
+mkdir -p $NVIM_DIR
+NVIM_CONFIG_FILE="$NVIM_DIR/init.vim"
+
+cat << HEREDOC > $NVIM_CONFIG_FILE
+set runtimepath^=~/.vim runtimepath+=~/.vim/after
+let &packpath = &runtimepath
+source ~/.vimrc
+HEREDOC
 
 exit 0

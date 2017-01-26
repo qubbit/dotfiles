@@ -5,3 +5,5 @@
 .tags_sorted_by_file
 tags
 *.swp
+*.swo
+*.gem
