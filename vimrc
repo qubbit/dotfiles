@@ -100,6 +100,7 @@ Plug 'danilo-augusto/vim-afterglow'
 Plug 'w0rp/ale'
 " Plug 'flazz/vim-colorschemes'
 " Plug 'gorodinskiy/vim-coloresque'
+Plug 'neoclide/coc.nvim', {'branch': 'release'}
 call plug#end()
 
 cmap w!! w !sudo tee > /dev/null %
@@ -117,7 +118,8 @@ au FileType ruby setlocal equalprg=rufo
 
 au FileType elixir nnoremap <buffer> <leader>d Orequire<space>IEx;<space>IEx.pry()<esc>
 au FileType ruby nnoremap <buffer> <leader>d Orequire<space>'pry';<space>binding.pry<esc>
-au FileType javascript nnoremap <buffer> <leader>d Odebugger;<esc>
+au FileType jsx, javascript nnoremap <buffer> <leader>d Odebugger;<esc>
+au FileType tsx, typescript  nnoremap <buffer> <leader>d Odebugger;<esc>
 
 au FileType elixir nnoremap <leader>i iIO.inspect<space><esc>==$
 au FileType elixir nnoremap <leader>I "zyiwoIO.inspect<space><c-r>z,<space>label:<space>"<c-r>z"<esc>==$
@@ -245,6 +247,8 @@ nnoremap <Leader>s :%s/\<<C-r><C-w>\>/
 
 nnoremap <silent> <leader>f mxgg=G`xzz
 
+nmap <leader>rn <Plug>(coc-rename)
+
 " use ag to search using the ack plugin
 if executable('ag')
   let g:ackprg = 'ag --vimgrep'
@@ -287,3 +291,5 @@ let g:NERDTrimTrailingWhitespace = 1
 
 " Enable NERDCommenterToggle to check all selected lines is commented or not
 let g:NERDToggleCheckAllLines = 1
+
+let g:coc_node_path = '/Users/gopadhi/.nvm/versions/node/v12.4.0/bin/node'

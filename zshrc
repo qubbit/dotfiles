@@ -7,6 +7,8 @@ command_exists() {
   command -V "$@" > /dev/null 2>&1
 }
 
+export JAVA_HOME='/Library/Java/JavaVirtualMachines/jdk1.8.0_211.jdk/Contents/Home'
+
 # Path configuration
 export PATH="~/.dotfiles/bin:$PATH"
 export PATH="~/.dotfiles/fzf/bin:$PATH"
@@ -169,22 +171,17 @@ function duh() {
   du -h $@ | grep '[0-9\.]\+G' | sort -n -r
 }
 
-function whatport() {
+function wp() {
   if [[ $(os) == 'Darwin' ]]; then
-    netstat -ln | grep $1 | awk '{print $NF}'
+    lsof -n -i4TCP:$1
   else
     netstat -tulpn | grep :$1
   fi
 }
 
-
-function wwp() {
-  lsof -n -i4TCP:$1
-}
-
 # find and kill programs listening on the specified TCP port
 function kp() {
-  lsof -n -t -i4TCP:$1 | xargs kill -15
+  lsof -nt -i4TCP:$1 | xargs kill -15
 }
 
 
