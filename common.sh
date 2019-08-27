@@ -41,3 +41,10 @@ zsh_setup() {
   rm -rf ~/.dotfiles/antigen
   git clone --depth 1 https://github.com/zsh-users/antigen.git ~/.dotfiles/antigen
 }
+
+fonts_setup() {
+  __info__ "Installing fonts"
+  rm -rf ~/.dotfiles/nerd-fonts
+  git clone --depth 1 https://github.com/ryanoasis/nerd-fonts ~/.dotfiles/nerd-fonts
+  ~/.dotfiles/nerd-fonts/install.sh
+}
