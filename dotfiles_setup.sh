@@ -38,12 +38,9 @@ if [ "$DRYRUN" = false ]; then
   vim_setup
   __info__ "Setting up zsh"
   zsh_setup
-  __info__ "Setting up fonts"
-  fonts_setup
 else
   __info__ "dry run: vim setup"
   __info__ "dry run: zsh setup"
-  __info__ "dry run: fonts setup"
 fi
 
 for file in ${FILE_LIST[@]}; do
