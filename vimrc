@@ -97,10 +97,11 @@ Plug 'vim-airline/vim-airline'
 " Plug 'gregsexton/Atom'
 Plug 'danilo-augusto/vim-afterglow'
 
-Plug 'w0rp/ale'
+" Plug 'w0rp/ale'
 " Plug 'flazz/vim-colorschemes'
 " Plug 'gorodinskiy/vim-coloresque'
-Plug 'neoclide/coc.nvim', {'branch': 'release'}
+" Plug 'neoclide/coc.nvim', {'branch': 'release'}
+Plug 'neoclide/coc.nvim', {'do': 'yarn install --frozen-lockfile'}
 call plug#end()
 
 cmap w!! w !sudo tee > /dev/null %
@@ -295,4 +296,23 @@ let g:NERDTrimTrailingWhitespace = 1
 " Enable NERDCommenterToggle to check all selected lines is commented or not
 let g:NERDToggleCheckAllLines = 1
 
+" Coc
 let g:coc_node_path = substitute(system('which node'), '\n', '', '')
+
+let g:coc_global_extensions = ['coc-html', 'coc-json', 'coc-css', 'coc-rls', 'coc-diagnostic', 'coc-java', 'coc-tsserver', 'coc-eslint']
+
+" Smaller updatetime for CursorHold & CursorHoldI
+set updatetime=300
+" don't give |ins-completion-menu| messages.
+set shortmess+=c
+nnoremap <F5> :CocRebuild<CR>
+nnoremap <silent> <leader>g  :<C-u>CocList -I symbols<CR>
+nnoremap <leader>o :CocCommand tsserver.organizeImports<CR>
+nmap <leader>r <Plug>(coc-rename)
+nmap <leader>s <Plug>(coc-codeaction)
+nmap <leader>S <Plug>(coc-fix-current)
+nmap <silent> <leader>a <Plug>(coc-diagnostic-next-error)
+nmap <silent> <leader>A <Plug>(coc-diagnostic-next)
+nmap <silent> <leader>d <Plug>(coc-definition)
+nmap <silent> <leader>D <Plug>(coc-implementation)
+nmap <silent> <leader>t <Plug>(coc-type-definition)

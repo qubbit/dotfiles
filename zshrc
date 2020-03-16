@@ -1,3 +1,5 @@
+fpath+=~/.zfunc
+
 # Helper functions
 os() {
   uname
@@ -14,7 +16,7 @@ export PATH="~/.dotfiles/bin:$PATH"
 export PATH="~/.dotfiles/fzf/bin:$PATH"
 export PATH=/usr/local/bin:$PATH
 export PATH=$PATH:/usr/local/opt/go/libexec/bin
-export PATH=$PATH:~/.cargo/bin
+export PATH="$HOME/.cargo/bin:$PATH"
 export PATH="$HOME/.rbenv/bin:$PATH"
 export PATH="$PATH:~/go/bin"
 export PATH="/usr/local/opt/imagemagick@6/bin:$PATH"
@@ -237,4 +239,6 @@ export NVM_DIR="$HOME/.nvm"
 
 [ -f ~/.dotfiles/amazon.zsh ] && source ~/.dotfiles/amazon.zsh
 
-. /usr/local/etc/profile.d/z.sh
+# . /usr/local/etc/profile.d/z.sh
+export PATH=$HOME/.toolbox/bin:$PATH
+export PATH="/Users/gopadhi/code/website/src/PBCentralTeamScripts/scripts":$PATH
