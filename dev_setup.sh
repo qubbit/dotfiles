@@ -51,13 +51,19 @@ function mac_setup() {
 
   common_setup
 
-  __info__ "Installing home brew"
-  /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
+  if command_exists brew; then
+    __info__ "Homebrew is already installed"
+  else
+    __info__ "Installing homebrew"
+    /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
+fi
 
 
+  __info__ "Running brew doctor"
   brew doctor
+  brew_doctor_status=$?
   if [[ $? != 0 ]]; then
-    __fatal__ "brew doctor returned non-zero exit status\n"
+    __fatal__ "brew doctor returned non-zero exit status: $brew_doctor_status\n"
     exit 1
   fi
 
