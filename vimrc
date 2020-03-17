@@ -97,7 +97,6 @@ Plug 'vim-airline/vim-airline'
 " Plug 'gregsexton/Atom'
 Plug 'danilo-augusto/vim-afterglow'
 
-" Plug 'w0rp/ale'
 " Plug 'flazz/vim-colorschemes'
 " Plug 'gorodinskiy/vim-coloresque'
 " Plug 'neoclide/coc.nvim', {'branch': 'release'}
