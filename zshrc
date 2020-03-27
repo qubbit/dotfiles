@@ -9,9 +9,9 @@ command_exists() {
   command -V "$@" > /dev/null 2>&1
 }
 
-export JAVA_HOME='/Library/Java/JavaVirtualMachines/jdk1.8.0_211.jdk/Contents/Home'
+export JAVA_HOME=$(/usr/libexec/java_home -v 1.8)
 
-# Path configuration
+#  Path configuration
 export PATH="~/.dotfiles/bin:$PATH"
 export PATH="~/.dotfiles/fzf/bin:$PATH"
 export PATH=/usr/local/bin:$PATH

@@ -1,5 +1,8 @@
 set nocompatible
 
+let g:fugitive_code_amazon_domains = ['ssh://git.amazon.com:2222']
+
+set runtimepath^=~/pg/vim-fubitive/plugin/fubitive.vim
 " use space as leader key
 let mapleader = " "
 
@@ -46,6 +49,7 @@ Plug 'wincent/command-t'
 Plug 'mileszs/ack.vim'
 Plug 'Quramy/tsuquyomi'
 Plug 'leafgarland/typescript-vim'
+Plug 'ianks/vim-tsx'
 
 
 let os = substitute(system('uname'), '\n', '', '')
@@ -298,13 +302,14 @@ let g:NERDToggleCheckAllLines = 1
 " Coc
 let g:coc_node_path = substitute(system('which node'), '\n', '', '')
 
-let g:coc_global_extensions = ['coc-html', 'coc-json', 'coc-css', 'coc-rls', 'coc-diagnostic', 'coc-java', 'coc-tsserver', 'coc-eslint']
+let g:coc_global_extensions = ['coc-html', 'coc-json', 'coc-css', 'coc-rls', 'coc-diagnostic', 'coc-prettier', 'coc-java', 'coc-tsserver', 'coc-eslint']
+" let g:coc_global_extensions = ['coc-html', 'coc-json', 'coc-css', 'coc-rls', 'coc-java', 'coc-tsserver', 'coc-eslint']
 
 " Smaller updatetime for CursorHold & CursorHoldI
 set updatetime=300
 " don't give |ins-completion-menu| messages.
 set shortmess+=c
-nnoremap <F5> :CocRebuild<CR>
+" nnoremap <F5> :CocRebuild<CR>
 nnoremap <silent> <leader>g  :<C-u>CocList -I symbols<CR>
 nnoremap <leader>o :CocCommand tsserver.organizeImports<CR>
 nmap <leader>r <Plug>(coc-rename)
@@ -315,3 +320,5 @@ nmap <silent> <leader>A <Plug>(coc-diagnostic-next)
 nmap <silent> <leader>d <Plug>(coc-definition)
 nmap <silent> <leader>D <Plug>(coc-implementation)
 nmap <silent> <leader>t <Plug>(coc-type-definition)
+
+
