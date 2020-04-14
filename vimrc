@@ -125,8 +125,8 @@ au FileType ruby nnoremap <buffer> <leader>d Orequire<space>'pry';<space>binding
 au FileType jsx, javascript nnoremap <buffer> <leader>d Odebugger;<esc>
 au FileType tsx, typescript  nnoremap <buffer> <leader>d Odebugger;<esc>
 
-au FileType javascript nnoremap <leader>i "ayiwOconsole.log('<C-R>a:', <C-R>a);<Esc>
-au FileType javascript xnoremap <leader>i "ayiwOconsole.log('<C-R>a:', <C-R>a);<Esc>
+au FileType javascript nnoremap <leader>i "ayiwoconsole.log('<C-R>a:', <C-R>a);<Esc>
+au FileType javascript xnoremap <leader>i "ayiwoconsole.log('<C-R>a:', <C-R>a);<Esc>
 
 au FileType elixir nnoremap <leader>i iIO.inspect<space><esc>==$
 au FileType elixir nnoremap <leader>I "zyiwoIO.inspect<space><c-r>z,<space>label:<space>"<c-r>z"<esc>==$
