@@ -50,7 +50,7 @@ let g:UltiSnipsJumpBackwardTrigger="<s-tab>"
 let g:UltiSnipsEditSplit="vertical"
 
 " End Java plugins
-
+Plug 'tjvr/vim-nearley'
 Plug 'editorconfig/editorconfig-vim'
 Plug 'godlygeek/tabular'
 Plug 'junegunn/vim-easy-align'
@@ -63,7 +63,6 @@ Plug 'tpope/vim-fugitive'
 Plug 'tpope/vim-rhubarb'
 Plug 'tpope/vim-sensible'
 Plug 'tpope/vim-surround'
-Plug 'wincent/command-t'
 Plug 'mileszs/ack.vim'
 Plug 'Quramy/tsuquyomi'
 Plug 'leafgarland/typescript-vim'
@@ -77,6 +76,8 @@ let os = substitute(system('uname'), '\n', '', '')
 " elseif os == 'Linux'
 "   Plug '~/.fzf'
 " endif
+Plug 'junegunn/fzf.vim'
+Plug 'junegunn/fzf', { 'dir': '~/.dotfiles/fzf', 'do': '~/.dotfiles/fzf/install --all' }
 
 Plug 'ruby-formatter/rufo-vim'
 
@@ -114,13 +115,29 @@ Plug 'vim-airline/vim-airline'
 " Plug 'jacoborus/tender.vim'
 " Plug 'mhartington/oceanic-next'
 " Plug 'arcticicestudio/nord-vim'
+Plug 'sainnhe/sonokai'
 " Plug 'gregsexton/Atom'
 Plug 'danilo-augusto/vim-afterglow'
 
 " Plug 'flazz/vim-colorschemes'
 " Plug 'gorodinskiy/vim-coloresque'
 " Plug 'neoclide/coc.nvim', {'branch': 'release'}
-Plug 'neoclide/coc.nvim', {'do': 'yarn install --frozen-lockfile'}
+" Plug 'neoclide/coc.nvim', {'branch': 'release', 'do': 'yarn install --frozen-lockfile'}
+
+if has('nvim-0.5')
+  Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}  " We recommend updating the parsers on update
+  Plug 'nvim-lua/popup.nvim'
+  Plug 'nvim-lua/plenary.nvim'
+  Plug 'nvim-telescope/telescope.nvim'
+  Plug 'kyazdani42/nvim-web-devicons'
+
+  " Find files using Telescope command-line sugar.
+  nnoremap <leader>ff <cmd>Telescope find_files<cr>
+  nnoremap <leader>fg <cmd>Telescope live_grep<cr>
+  nnoremap <leader>fb <cmd>Telescope buffers<cr>
+  nnoremap <leader>fh <cmd>Telescope help_tags<cr>
+end
+
 call plug#end()
 
 cmap w!! w !sudo tee > /dev/null %
@@ -148,6 +165,8 @@ au FileType tsx, typescript  nnoremap <buffer> <leader>d Odebugger;<esc>
 au FileType javascript,typescript nnoremap <leader>i "ayiwoconsole.log('<C-R>a:', <C-R>a);<Esc>
 au FileType javascript,typescript xnoremap <leader>i "ayiwoconsole.log('<C-R>a:', <C-R>a);<Esc>
 
+au FileType python xnoremap <leader>i "ayiwoprint('<C-R>a:', <C-R>a);<Esc>
+
 au FileType elixir nnoremap <leader>i iIO.inspect<space><esc>==$
 au FileType elixir nnoremap <leader>I "zyiwoIO.inspect<space><c-r>z,<space>label:<space>"<c-r>z"<esc>==$
 
@@ -170,7 +189,7 @@ autocmd Filetype ruby setlocal tabstop=2 shiftwidth=2 expandtab keywordprg=ri
 autocmd Filetype go setlocal tabstop=4 shiftwidth=4 noexpandtab nolist
 
 " color schemes
-silent! colorscheme afterglow
+silent! colorscheme sonokai
 
 " some color schemes needs to be additionally configured
 " based on things like current terminal background etc
@@ -274,6 +293,8 @@ nnoremap <Leader>s :%s/\<<C-r><C-w>\>/
 nnoremap <silent> <leader>f mxgg=G`xzz
 
 nmap <leader>rn <Plug>(coc-rename)
+
+
 
 " use ag to search using the ack plugin
 if executable('ag')

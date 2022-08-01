@@ -69,3 +69,5 @@ path
 
 [branch]
   autosetupmerge = always
+[init]
+	defaultBranch = main
