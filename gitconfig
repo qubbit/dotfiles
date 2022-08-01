@@ -16,13 +16,13 @@
   dmn = diff mainline --name-only
 
   rao = remote add origin
-  pom = pull origin master
+  pom = pull origin main
   ac = !git add . && git commit -am
   pushitgood = push -u origin --all
 
   # finds the ref where master and this branch diverged and attempts
   # to rebase from that point on
-  sb = !git rebase -i $(git merge-base HEAD master)
+  sb = !git rebase -i $(git merge-base HEAD main)
 
   d = diff
   ds = diff --stat

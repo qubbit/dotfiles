@@ -1,3 +1,10 @@
+# Enable Powerlevel10k instant prompt. Should stay close to the top of ~/.zshrc.
+# Initialization code that may require console input (password prompts, [y/n]
+# confirmations, etc.) must go above this block; everything else may go below.
+if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
+  source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
+fi
+
 fpath+=~/.zfunc
 
 # Helper functions
@@ -10,6 +17,7 @@ command_exists() {
 }
 
 export JAVA_HOME=$(/usr/libexec/java_home -v 1.8)
+export JDTLS_HOME="/Users/gopadhi/Downloads/jdt-language-server-1.9.0-202203031534"
 
 #  Path configuration
 export PATH="~/.dotfiles/bin:$PATH"
@@ -45,8 +53,10 @@ if [ -f $ANTIGEN_PATH ]; then
   antigen bundle zsh-users/zsh-syntax-highlighting
   antigen bundle zsh-users/zsh-history-substring-search
 
-  antigen theme geometry-zsh/geometry
+  antigen theme romkatv/powerlevel10k
+  # antigen theme spaceship-prompt/spaceship-prompt
   # antigen theme avit
+  # antigen theme geometry-zsh/geometry
 
   antigen apply
 fi
@@ -196,7 +206,7 @@ function mcd() {
 }
 
 # customized norm theme
-# PROMPT='%{$fg[yellow]%}%n% @%m %{$fg[green]%}%c %{$fg[yellow]%}$(git_prompt_info)%{$reset_color%}'$'\nλ '
+# PROMPT='%{$fg[yellow]%}%n% @%m %{$fg[green]%}%c %{$fg[yellow]%}$(git_prompt_info)%{$reset_color%}'$'\nÃÂ» '
 
 ZSH_THEME_GIT_PROMPT_PREFIX="%{$fg[colour12]%}git %{$fg[red]%}"
 ZSH_THEME_GIT_PROMPT_SUFFIX="%{$fg[yellow]%}%{$reset_color%}"
@@ -204,7 +214,7 @@ ZSH_THEME_GIT_PROMPT_SUFFIX="%{$fg[yellow]%}%{$reset_color%}"
 eval `ssh-agent` > /dev/null
 [ -f ~/.asdf/asdf.sh ] && . ~/.asdf/asdf.sh
 
-[ -f /usr/local/etc/profile.d/autojump.sh ] && . /usr/local/etc/profile.d/autojump.sh
+[ -f /opt/homebrew/etc/profile.d/autojump.sh ] && . /opt/homebrew/etc/profile.d/autojump.sh
 
 command_exists rbenv && eval "$(rbenv init -)"
 
@@ -234,11 +244,18 @@ armaggedon() {
 }
 
 export NVM_DIR="$HOME/.nvm"
-[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
-[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
+  [ -s "/opt/homebrew/opt/nvm/nvm.sh" ] && . "/opt/homebrew/opt/nvm/nvm.sh"  # This loads nvm
+  [ -s "/opt/homebrew/opt/nvm/etc/bash_completion.d/nvm" ] && . "/opt/homebrew/opt/nvm/etc/bash_completion.d/nvm"  # This loads nvm bash_completion
 
 [ -f ~/.dotfiles/amazon.zsh ] && source ~/.dotfiles/amazon.zsh
 
 # . /usr/local/etc/profile.d/z.sh
 export PATH=$HOME/.toolbox/bin:$PATH
 export PATH="/Users/gopadhi/code/website/src/PBCentralTeamScripts/scripts":$PATH
+
+export PATH="/Applications/Fortify/Fortify_SCA_and_Apps_21.1.0/bin:$PATH"
+
+# To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
+[[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
+
+export PATH="/Applications/Fortify/Fortify_SCA_and_Apps_21.1.1/bin:$PATH"

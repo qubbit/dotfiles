@@ -14,7 +14,25 @@ endif
 
 call plug#begin('~/.vim/plugged')
 
+if has('nvim')
+  Plug 'nvim-lua/plenary.nvim'
+  Plug 'nvim-telescope/telescope.nvim'
+  " https://github.com/neovim/nvim-lspconfig
+  Plug 'neovim/nvim-lspconfig'
+  " Find files using Telescope command-line sugar.
+  nnoremap <leader>ff <cmd>Telescope find_files<cr>
+  nnoremap <leader>fg <cmd>Telescope live_grep<cr>
+  nnoremap <leader>fb <cmd>Telescope buffers<cr>
+  nnoremap <leader>fh <cmd>Telescope help_tags<cr>
+else
+  Plug 'junegunn/fzf.vim'
+  Plug 'junegunn/fzf', { 'dir': '~/.dotfiles/fzf', 'do': '~/.dotfiles/fzf/install --all' }
+endif
+
 Plug 'jparise/vim-graphql'
+Plug 'instant-markdown/vim-instant-markdown', {'for': 'markdown', 'do': 'yarn install'}
+Plug 'ssh://git.amazon.com:2222/pkg/Vim-code-browse', {'branch': 'mainline'}
+Plug 'github/copilot.vim'
 
 " Java plugins
 
@@ -60,8 +78,6 @@ let os = substitute(system('uname'), '\n', '', '')
 "   Plug '~/.fzf'
 " endif
 
-Plug 'junegunn/fzf.vim'
-Plug 'junegunn/fzf', { 'dir': '~/.dotfiles/fzf', 'do': '~/.dotfiles/fzf/install --all' }
 Plug 'ruby-formatter/rufo-vim'
 
 " enables readline shortcuts in command and insert mode
@@ -190,8 +206,6 @@ imap <C-c> <Esc>
 nmap <c-p> :Files<CR>
 nmap <leader>b :Buffers<CR>
 nmap <leader>h :Helptags<CR>
-let g:ctrlp_custom_ignore = '\v[\/](build|_build|deps|node_modules|target|dist|bundle|vendor|tmp)|(\.(swp|ico|git|svn))$'
-let g:ctrlp_working_path_mode = 'rc'
 
 " configure syntastic syntax checking to check on open as well as save
 let g:syntastic_check_on_open=1
@@ -242,13 +256,14 @@ syntax enable
 let g:jsx_ext_required = 0
 
 let g:ale_fix_on_save = 0
-let g:prettier#autoformat = 0
 
+let g:prettier#autoformat = 0
 let g:prettier#config#trailing_comma = 'none'
 let g:prettier#config#bracket_spacing = 'true'
 let g:prettier#config#use_tabs = 'false'
 let g:prettier#config#tab_width = 2
 let g:prettier#quickfix_auto_focus = 0
+let g:prettier#config#config_precedence = 'file-override'
 
 map <leader>a ggVG
 map <leader>o o<CR>
