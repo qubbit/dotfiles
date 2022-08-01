@@ -141,10 +141,12 @@ au FileType ruby nnoremap <buffer> <leader>d Orequire<space>'pry';<space>binding
 au FileType jsx, javascript nnoremap <buffer> <leader>d Odebugger;<esc>
 au FileType tsx, typescript  nnoremap <buffer> <leader>d Odebugger;<esc>
 
-au FileType typescript nnoremap <Leader>i "ayiwoconsole.log('<C-R>a:', <C-R>a);<Esc>
-au FileType typescript xnoremap <Leader>i "ayoconsole.log('<C-R>a:', <C-R>a);<Esc>
-au FileType javascript nnoremap <Leader>i "ayiwoconsole.log('<C-R>a:', <C-R>a);<Esc>
-au FileType javascript xnoremap <Leader>i "ayoconsole.log('<C-R>a:', <C-R>a);<Esc>
+" au FileType typescript nnoremap <Leader>i "ayiwoconsole.log('<C-R>a:', <C-R>a);<Esc>
+" au FileType typescript xnoremap <Leader>i "ayoconsole.log('<C-R>a:', <C-R>a);<Esc>
+" au FileType javascript nnoremap <Leader>i "ayiwoconsole.log('<C-R>a:', <C-R>a);<Esc>
+" au FileType javascript xnoremap <Leader>i "ayoconsole.log('<C-R>a:', <C-R>a);<Esc>
+au FileType javascript,typescript nnoremap <leader>i "ayiwoconsole.log('<C-R>a:', <C-R>a);<Esc>
+au FileType javascript,typescript xnoremap <leader>i "ayiwoconsole.log('<C-R>a:', <C-R>a);<Esc>
 
 au FileType elixir nnoremap <leader>i iIO.inspect<space><esc>==$
 au FileType elixir nnoremap <leader>I "zyiwoIO.inspect<space><c-r>z,<space>label:<space>"<c-r>z"<esc>==$
@@ -339,3 +341,5 @@ nmap <silent> <leader>D <Plug>(coc-implementation)
 nmap <silent> <leader>t <Plug>(coc-type-definition)
 
 autocmd VimResized * wincmd =
+set fileformats=unix,dos
+set fileformat=unix

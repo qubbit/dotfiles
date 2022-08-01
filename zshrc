@@ -18,6 +18,9 @@ command_exists() {
 
 export JAVA_HOME=$(/usr/libexec/java_home -v 1.8)
 export JDTLS_HOME="/Users/gopadhi/Downloads/jdt-language-server-1.9.0-202203031534"
+if [[ $(os) == 'Darwin' ]]; then
+  export JAVA_HOME=$(/usr/libexec/java_home -F)
+fi
 
 #  Path configuration
 export PATH="~/.dotfiles/bin:$PATH"
@@ -91,9 +94,7 @@ cdc() {
 }
 
 if [[ $(os) == 'Darwin' ]]; then
-  export HOST=nymeria
 else
-  export HOST=greywind
   #if test has_app('xmodmap'); then xmodmap ~/.speedswapper; fi
 fi
 
@@ -259,3 +260,6 @@ export PATH="/Applications/Fortify/Fortify_SCA_and_Apps_21.1.0/bin:$PATH"
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
 
 export PATH="/Applications/Fortify/Fortify_SCA_and_Apps_21.1.1/bin:$PATH"
+function fix_insecure_dirs() {
+  for f in $(compaudit);do sudo chown $(whoami):admin $f; chmod -R 755 $f; done;
+}
